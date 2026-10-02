@@ -146,6 +146,24 @@ typedef double NSTimeInterval;
 + (id)dataWithContentsOfURL:(NSURL *)url;
 @end
 
+@interface NSDate : NSObject
+@end
+
+@interface NSTimeZone : NSObject
++ (instancetype)timeZoneWithName:(NSString *)name;
++ (instancetype)timeZoneWithAbbreviation:(NSString *)abbreviation;
++ (instancetype)timeZoneForSecondsFromGMT:(NSInteger)seconds;
+- (NSString *)name;
+- (NSString *)abbreviation;
+- (NSInteger)secondsFromGMT;
+@end
+
+@interface NSDateFormatter: NSObject
+- (NSString *)stringFromDate:(NSDate *)date;
+- (void)setDateFormat:(NSString *)format;
+- (void)setTimeZone:(NSTimeZone *)timeZone;
+@end
+
 @interface NSCoder : NSObject
 - (void)encodeBytes:(const uint8_t *)bytes
              length:(NSUInteger)length

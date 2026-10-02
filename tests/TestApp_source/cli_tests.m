@@ -6345,6 +6345,45 @@ int test_NSNotificationCenter_addObserver_nilName_removeObserver() {
   return 0;
 }
 
+int test_NSDateFormatter_timeZones() {
+  NSAutoreleasePool *pool = [NSAutoreleasePool new];
+
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  [formatter setDateFormat:[NSString stringWithUTF8String:"yyyy-MM-dd HH:mm:ss"]];
+
+  // Test for generic timestamp
+  NSTimeInterval timestamp = 1677369600; // 2023-02-26 00:00:00 UTC
+  NSDate *dateUTC = [NSDate dateWithTimeIntervalSince1970:timestamp];
+  NSString *formattedUTC = [formatter stringFromDate:dateUTC];
+  if (![formattedUTC isEqualToString:[NSString stringWithUTF8String:"2023-02-26 00:00:00"]]) {
+    [formatter release];
+    [pool drain];
+    return -1;
+  }
+
+  // Test with set timezone wip
+  NSTimeZone *timeZone = [NSTimeZone timeZoneWithAbbreviation:[NSString stringWithUTF8String:"PST"]];
+  NSInteger offset = -8 * 3600.0;
+  [formatter setTimeZone:timeZone];
+  NSString *fetchedPST = [formatter timeZone];
+  if (![fetchedPST isEqual:timeZone]) {
+    [formatter release];
+    [pool drain];
+    return -2;
+  }
+
+  // Valid? offset
+  if (![timeZone.secondsFromGMT isEqual:offset]) {
+    [formatter release];
+    [pool drain];
+    return -3;
+  }
+
+  [formatter release];
+  [pool drain];
+  return 0;
+}
+
 int test_malloc_zone_basic() {
   malloc_zone_t *zone = malloc_create_zone(0, 0);
   unsigned char *p = malloc_zone_malloc(zone, 128);
@@ -6577,6 +6616,7 @@ struct {
     FUNC_DEF(test_NSNotificationCenter_addObserver_nilName),
     FUNC_DEF(test_NSNotificationCenter_addObserver_nilName_withObject),
     FUNC_DEF(test_NSNotificationCenter_addObserver_nilName_removeObserver),
+    FUNC_DEF(test_NSDateFormatter_timeZones),
     FUNC_DEF(test_malloc_zone_basic),
     FUNC_DEF(test_malloc_zone_struct_dispatch),
     FUNC_DEF(test_fcvt),

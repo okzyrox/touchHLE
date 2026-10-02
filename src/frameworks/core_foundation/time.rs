@@ -7,10 +7,10 @@
 
 use crate::dyld::{export_c_func, FunctionExports};
 use crate::frameworks::core_foundation::CFTypeRef;
-use crate::frameworks::foundation::NSTimeInterval;
+use crate::frameworks::foundation::{NSInteger, NSTimeInterval};
 use crate::libc::time::{time_t, timestamp_to_calendar_date};
 use crate::mem::SafeRead;
-use crate::objc::nil;
+use crate::objc::{msg, nil};
 use crate::{impl_GuestRet_for_large_struct, Environment};
 use std::ops::Add;
 use std::time::{Duration, SystemTime};
@@ -56,13 +56,15 @@ fn CFTimeZoneCopySystem(_env: &mut Environment) -> CFTimeZoneRef {
 }
 
 pub fn CFAbsoluteTimeGetGregorianDate(
-    _env: &mut Environment,
+    env: &mut Environment,
     at: CFAbsoluteTime,
     tz: CFTimeZoneRef,
 ) -> CFGregorianDate {
-    assert!(tz.is_null());
+    // TODO: change to secondsFromGMTForDate
+    let tz_offset: NSInteger = msg![env; tz secondsFromGMT];
     let time64 = apple_epoch()
         .add(Duration::from_secs_f64(at))
+        .add(Duration::from_secs_f32(tz_offset as f32))
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
         .as_secs();
