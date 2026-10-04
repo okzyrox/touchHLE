@@ -61,14 +61,19 @@ pub fn CFAbsoluteTimeGetGregorianDate(
     tz: CFTimeZoneRef,
 ) -> CFGregorianDate {
     // TODO: change to secondsFromGMTForDate
-    let tz_offset: NSInteger = msg![env; tz secondsFromGMT];
+    let tz_offset: NSInteger;
+    if !tz.is_null() {
+        tz_offset = msg![env; tz secondsFromGMT];
+    } else {
+        tz_offset = 0;
+    }
+
     let time64 = apple_epoch()
         .add(Duration::from_secs_f64(at))
-        .add(Duration::from_secs_f32(tz_offset as f32))
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    let time = time64 as time_t;
+    let time = time64 as time_t + tz_offset;
     let tm = timestamp_to_calendar_date(time);
     CFGregorianDate {
         year: 1900 + tm.tm_year,

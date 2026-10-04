@@ -6349,34 +6349,28 @@ int test_NSDateFormatter_timeZones() {
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
 
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  NSTimeZone *timeZone = [NSTimeZone timeZoneWithAbbreviation:[NSString stringWithUTF8String:"PST"]];
   [formatter setDateFormat:[NSString stringWithUTF8String:"yyyy-MM-dd HH:mm:ss"]];
 
-  // Test for generic timestamp
   NSTimeInterval timestamp = 1677369600; // 2023-02-26 00:00:00 UTC
   NSDate *dateUTC = [NSDate dateWithTimeIntervalSince1970:timestamp];
-  NSString *formattedUTC = [formatter stringFromDate:dateUTC];
-  if (![formattedUTC isEqualToString:[NSString stringWithUTF8String:"2023-02-26 00:00:00"]]) {
+
+  // Test for time-zone offset.
+  [formatter setTimeZone:timeZone];
+  NSString *formattedPST = [formatter stringFromDate:dateUTC];
+  if (![formattedPST isEqualToString:[NSString stringWithUTF8String:"2023-02-25 16:00:00"]]) {
     [formatter release];
     [pool drain];
     return -1;
   }
 
-  // Test with set timezone wip
-  NSTimeZone *timeZone = [NSTimeZone timeZoneWithAbbreviation:[NSString stringWithUTF8String:"PST"]];
-  NSInteger offset = -8 * 3600.0;
-  [formatter setTimeZone:timeZone];
-  NSString *fetchedPST = [formatter timeZone];
-  if (![fetchedPST isEqual:timeZone]) {
+  // Reset back to "default".
+  [formatter setTimeZone:[NSTimeZone defaultTimeZone]];
+  NSString *formattedGMT = [formatter stringFromDate:dateUTC];
+  if (![formattedGMT isEqualToString:[NSString stringWithUTF8String:"2023-02-26 00:00:00"]]) {
     [formatter release];
     [pool drain];
     return -2;
-  }
-
-  // Valid? offset
-  if (![timeZone.secondsFromGMT isEqual:offset]) {
-    [formatter release];
-    [pool drain];
-    return -3;
   }
 
   [formatter release];

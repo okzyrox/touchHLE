@@ -10,11 +10,8 @@
 //! - [Unicode Technical Standard #35](https://unicode.org/reports/tr35/tr35-10.html#Date_Format_Patterns)
 
 use crate::frameworks::core_foundation::time::CFAbsoluteTimeGetGregorianDate;
-use crate::frameworks::foundation::ns_time_zone::NSTimeZoneHostObject;
 use crate::frameworks::foundation::{ns_string, NSTimeInterval};
-use crate::objc::{
-    autorelease, id, msg, msg_class, nil, objc_classes, ClassExports, HostObject, NSZonePtr,
-};
+use crate::objc::{autorelease, id, msg, nil, objc_classes, ClassExports, HostObject, NSZonePtr};
 
 struct NSDateFormatterHostObject {
     date_format: Option<id>,
@@ -41,21 +38,6 @@ pub const CLASSES: ClassExports = objc_classes! {
     env.objc.borrow_mut::<NSDateFormatterHostObject>(this).date_format = Some(date_format);
 }
 
-- (id)timeZone {
-    let &NSDateFormatterHostObject {
-        date_format: _,
-        time_zone,
-    } = env.objc.borrow(this);
-    time_zone.unwrap_or_else(|| {
-        let ns_timezone: id = msg_class![env; NSTimeZoneHostObject alloc];
-        let _tz: id = msg_class![env; ns_timezone defaultTimeZone];
-        let tz = env.objc.borrow_mut::<NSTimeZoneHostObject>(ns_timezone).time_zone;
-        let tz_format = ns_string::to_rust_string(env, tz).to_string().clone();
-        log_dbg!("Using default time_zone since none was set: {:?}", tz_format);
-        autorelease(env, tz)
-    })
-}
-
 - (())setTimeZone:(id)time_zone {
     let tz: id = msg![env; time_zone copy];
     env.objc.borrow_mut::<NSDateFormatterHostObject>(this).time_zone = Some(tz);
@@ -70,12 +52,7 @@ pub const CLASSES: ClassExports = objc_classes! {
     log_dbg!("date_format before: {:?}", format);
 
     let ti: NSTimeInterval = msg![env; date timeIntervalSinceReferenceDate];
-    let tz: id = time_zone.unwrap_or_else(|| {
-        let tz: id = msg_class![env; NSTimeZoneHostObject defaultTimeZone];
-        log_dbg!("Fallback tz: {:?}", tz);
-        autorelease(env, tz)
-    });
-    let greg_date = CFAbsoluteTimeGetGregorianDate(env, ti, tz);
+    let greg_date = CFAbsoluteTimeGetGregorianDate(env, ti, time_zone.unwrap_or_else(|| nil));
     let year = greg_date.year;
     let month = greg_date.month;
     let day = greg_date.day;

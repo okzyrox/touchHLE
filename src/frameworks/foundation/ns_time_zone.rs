@@ -29,7 +29,7 @@ impl HostObject for NSTimeZoneHostObject {}
 pub const TIME_ZONE_OFFSETS: TimeZoneOffsets = &[
     ("GMT", 0.0),
     ("UTC", 0.0),
-    ("PST", -8.0 * 3600.0),
+    ("America/Los_Angeles", -8.0 * 3600.0),
 ];
 
 pub const TIME_ZONE_NAMES: TimeZoneNames = &[
@@ -68,7 +68,7 @@ pub const CLASSES: ClassExports = objc_classes! {
 + (id)timeZoneForSecondsFromGMT:(NSInteger)seconds {
     let new: id = msg![env; this alloc];
     let gmt_offset: NSInteger = seconds;
-    // According to the docs, "time zones created (will) never have daylight savings", 
+    // According to the docs, "time zones created (will) never have daylight savings",
     // even if it matches with an existing timezones offset.
     let daylight_savings: bool = false;
     let new: id = msg![env; new initWithName:nil gmtOffset:gmt_offset daylightSavings:daylight_savings];
