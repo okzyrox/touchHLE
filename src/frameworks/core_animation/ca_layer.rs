@@ -512,6 +512,10 @@ pub const CLASSES: ClassExports = objc_classes! {
     todo_objc_setter!(this, ns_string::to_rust_string(env, filter));
 }
 
+- (())setContentsScale:(CGFloat)scale {
+    todo_objc_setter!(this, scale);
+}
+
 - (bool)containsPoint:(CGPoint)point {
     let bounds: CGRect = msg![env; this bounds];
     let x_range = bounds.origin.x..(bounds.origin.x + bounds.size.width);

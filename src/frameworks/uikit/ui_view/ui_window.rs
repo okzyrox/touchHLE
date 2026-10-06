@@ -22,7 +22,7 @@ use crate::frameworks::uikit::ui_device::{
     UIDeviceOrientationLandscapeLeft, UIDeviceOrientationLandscapeRight,
     UIDeviceOrientationPortraitUpsideDown,
 };
-use crate::objc::{id, msg, msg_class, msg_super, nil, objc_classes, ClassExports};
+use crate::objc::{id, msg, msg_class, todo_objc_setter, msg_super, nil, objc_classes, ClassExports};
 
 #[derive(Default)]
 pub struct State {
@@ -143,6 +143,10 @@ pub const CLASSES: ClassExports = objc_classes! {
 // "UIWindow returns the application object."
 - (id)nextResponder {
     msg_class![env; UIApplication sharedApplication]
+}
+
+- (())setRootViewController:(id)viewController {
+    todo_objc_setter!(this, viewController);
 }
 
 - (())addSubview:(id)view {

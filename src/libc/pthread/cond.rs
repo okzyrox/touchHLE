@@ -18,11 +18,15 @@ use crate::environment::{MutexId, ThreadBlock, ThreadId};
 use crate::libc::time::timespec;
 
 #[repr(C, packed)]
-pub struct pthread_condattr_t {}
+pub struct pthread_condattr_t {
+    sig: i32,
+    _opaque: [u8; 8]
+}
 unsafe impl SafeRead for pthread_condattr_t {}
 
-/// Arbitrarily-chosen magic number for `pthread_cond_t` (not Apple's).
+/// Arbitrarily-chosen magic number for `pthread_cond_t` & `pthread_condattr_t` (not Apple's).
 const MAGIC_COND: u32 = u32::from_be_bytes(*b"COND");
+const MAGIC_CONDATTR: i32 = i32::from_be_bytes(*b"CNDA");
 /// Magic number used by `PTHREAD_COND_INITIALIZER`. This is part of the ABI!
 const MAGIC_COND_STATIC: u32 = 0x3CB0B1BB;
 
@@ -59,9 +63,9 @@ pub struct CondHostObject {
 pub fn pthread_cond_init(
     env: &mut Environment,
     cond: MutPtr<pthread_cond_t>,
-    attr: ConstPtr<pthread_condattr_t>,
+    _attr: ConstPtr<pthread_condattr_t>,
 ) -> i32 {
-    assert!(attr.is_null());
+    // assert!(attr.is_null());
     let opaque = pthread_cond_t {
         magic: MAGIC_COND,
         _unused: [0; 6],
@@ -79,6 +83,16 @@ pub fn pthread_cond_init(
         },
     );
     0 // success
+}
+
+pub fn pthread_condattr_init(env: &mut Environment, attr: MutPtr<pthread_condattr_t>) -> i32 {
+    assert!(!attr.is_null());
+    let opaque = pthread_condattr_t {
+        sig: MAGIC_CONDATTR,
+        _opaque: [0; 8],
+    };
+    env.mem.write(attr, opaque);
+    0
 }
 
 fn check_or_register_cond(env: &mut Environment, cond: MutPtr<pthread_cond_t>) -> Result<(), i32> {
@@ -263,6 +277,7 @@ pub fn pthread_cond_destroy(env: &mut Environment, cond: MutPtr<pthread_cond_t>)
 
 pub const FUNCTIONS: FunctionExports = &[
     export_c_func!(pthread_cond_init(_, _)),
+    export_c_func!(pthread_condattr_init(_)),
     export_c_func!(pthread_cond_wait(_, _)),
     export_c_func!(pthread_cond_timedwait(_, _, _)),
     export_c_func!(pthread_cond_signal(_)),

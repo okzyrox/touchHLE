@@ -6,7 +6,7 @@
 //! `UIScreen`.
 
 use crate::frameworks::core_graphics::{CGFloat, CGPoint, CGRect, CGSize};
-use crate::objc::{id, msg, msg_class, objc_classes, ClassExports, TrivialHostObject};
+use crate::objc::{id, msg, msg_class, objc_classes, ClassExports, TrivialHostObject, SEL};
 
 #[derive(Default)]
 pub struct State {
@@ -67,6 +67,10 @@ pub const CLASSES: ClassExports = objc_classes! {
         bounds.size.height -= STATUS_BAR_HEIGHT;
     }
     bounds
+}
+
+- (id)displayLinkWithTarget:(id)target selector:(SEL)sel {
+    msg_class![env; CADisplayLink displayLinkWithTarget:target selector:sel]
 }
 
 - (CGFloat)scale {
