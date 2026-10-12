@@ -6414,6 +6414,11 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
   [array removeObjectsInArray:otherArray];
   [otherArray release];
 
+  printf("\n[array count] : %lu \n", (unsigned long)[array count]);
+  for (int i = 0; i < [array count]; i++) {
+    printf("[array] at %d: %d \n", i, [[array objectAtIndex:(unsigned long)i] intValue]);
+  }
+
   if ([array count] != 3) {
     [array release];
     [pool drain];
