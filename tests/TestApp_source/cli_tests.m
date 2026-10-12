@@ -6406,17 +6406,29 @@ int test_NSNotificationCenter_addObserver_nilName_removeObserver() {
 
 int test_NSMutableArray_removeObjectsInArray_otherArray() {
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
+  printf("\n");
 
   // Duplicate objects are removed as well.
   NSMutableArray *array =
       [[NSMutableArray alloc] initWithObjects:@1, @2, @3, @4, @5, @2, nil];
+  printf("og [array count] : %lu \n", (unsigned long)[array count]);
+  for (int i = 0; i < [array count]; i++) {
+    printf("og [array] at %d: %d \n", i,
+           [[array objectAtIndex:(unsigned long)i] intValue]);
+  }
   NSArray *otherArray = [[NSArray alloc] initWithObjects:@2, @4, @99, nil];
+  printf("[otherArray count] : %lu \n", (unsigned long)[otherArray count]);
+  for (int i = 0; i < [otherArray count]; i++) {
+    printf("[otherArray] at %d: %d \n", i,
+           [[otherArray objectAtIndex:(unsigned long)i] intValue]);
+  }
   [array removeObjectsInArray:otherArray];
+  printf("new [array count] (1) : %lu \n", (unsigned long)[array count]);
   [otherArray release];
 
-  printf("\n[array count] : %lu \n", (unsigned long)[array count]);
+  printf("new [array count] (2) : %lu \n", (unsigned long)[array count]);
   for (int i = 0; i < [array count]; i++) {
-    printf("[array] at %d: %d \n", i,
+    printf("new [array] at %d: %d \n", i,
            [[array objectAtIndex:(unsigned long)i] intValue]);
   }
 
