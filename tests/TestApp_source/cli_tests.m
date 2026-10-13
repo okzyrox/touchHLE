@@ -6409,46 +6409,30 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
   printf("\n");
 
   // Duplicate objects are removed as well.
-  NSMutableArray *array =
-      [[NSMutableArray alloc] initWithObjects:@1, @2, @3, @4, @5, @2, nil];
-  printf("og [array count] : %lu \n", (unsigned long)[array count]);
-  for (int i = 0; i < [array count]; i++) {
-    printf("og [array] at %d: %d \n", i,
-           [[array objectAtIndex:(unsigned long)i] intValue]);
-  }
-  NSArray *otherArray = [[NSArray alloc] initWithObjects:@2, @4, @99, nil];
-  printf("[otherArray count] : %lu \n", (unsigned long)[otherArray count]);
-  for (int i = 0; i < [otherArray count]; i++) {
-    printf("[otherArray] at %d: %d \n", i,
-           [[otherArray objectAtIndex:(unsigned long)i] intValue]);
-  }
-  [array removeObjectsInArray:otherArray];
-  printf("new [array count] (1) : %lu \n", (unsigned long)[array count]);
-  [otherArray release];
+  NSMutableArray *array = [NSMutableArray arrayWithObjects:@1, @2, @3, @4, @5, @2, nil];
+  printf("[array count] : %lu \n", (unsigned long)[array count]);
 
-  printf("new [array count] (2) : %lu \n", (unsigned long)[array count]);
-  for (int i = 0; i < [array count]; i++) {
-    printf("new [array] at %d: %d \n", i,
-           [[array objectAtIndex:(unsigned long)i] intValue]);
-  }
+  NSArray *otherArray = [NSArray arrayWithObjects:@2, @4, @99, nil];
+  printf("[otherArray count] : %lu \n", (unsigned long)[otherArray count]);
+  [array removeObjectsInArray:otherArray];
+  printf("new [array count]: %lu \n", (unsigned long)[array count]);
+    for (int i = 0; i < [array count]; i++) {
+        printf("new [array] at %d: %d \n", i,
+                [[array objectAtIndex:(unsigned long)i] intValue]);
+    }
 
   if ([array count] != 3) {
-    [array release];
     [pool drain];
     return -1;
   }
 
   // Expected: [1, 3, 5]
-  NSArray *expectedArray = [[NSArray alloc] initWithObjects:@1, @3, @5, nil];
+  NSArray *expectedArray = [NSArray arrayWithObjects:@1, @3, @5, nil];
   if (![array isEqualToArray:expectedArray]) {
-    [expectedArray release];
-    [array release];
-    [pool drain];
-    return -2;
+      [pool drain];
+      return -2;
   }
 
-  [expectedArray release];
-  [array release];
   [pool drain];
   return 0;
 }
