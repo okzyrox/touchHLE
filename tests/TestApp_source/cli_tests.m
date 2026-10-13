@@ -6428,8 +6428,6 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
     [pool drain];
     return -2;
   }
-  printf("\n [array count] %lu \n", [array count]);
-  printf("[expectedArray count] %lu \n", [expectedArray count]);
 
   [expectedArray release];
   [array release];
