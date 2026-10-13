@@ -898,7 +898,7 @@ fn init_with_objects_inner(env: &mut Environment, arr: id, first_obj: id, mut va
     let mut objects = vec![first_obj];
     loop {
         let object: id = va_args.next(env);
-        if object == nil {
+        if object.is_null() {
             break;
         }
         retain(env, object);
