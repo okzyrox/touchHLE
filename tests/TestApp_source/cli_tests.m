@@ -6410,12 +6410,13 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
 
   // Duplicate objects are removed as well.
   NSMutableArray *array =
-      [NSMutableArray arrayWithObjects:@1, @2, @3, @4, @5, @2, nil];
+      [[NSMutableArray alloc] initWithObjects:@1, @2, @3, @4, @5, @2, nil];
   printf("[array count] : %lu \n", (unsigned long)[array count]);
 
-  NSArray *otherArray = [NSArray arrayWithObjects:@2, @4, @99, nil];
+  NSArray *otherArray = [[NSArray alloc] initWithObjects:@2, @4, @99, nil];
   printf("[otherArray count] : %lu \n", (unsigned long)[otherArray count]);
   [array removeObjectsInArray:otherArray];
+  [otherArray release]
   printf("new [array count]: %lu \n", (unsigned long)[array count]);
   for (int i = 0; i < [array count]; i++) {
     printf("new [array] at %d: %d \n", i,
@@ -6423,17 +6424,22 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
   }
 
   if ([array count] != 3) {
+    [array release];
     [pool drain];
     return -1;
   }
 
   // Expected: [1, 3, 5]
-  NSArray *expectedArray = [NSArray arrayWithObjects:@1, @3, @5, nil];
+  NSArray *expectedArray = [[NSArray alloc] initWithObjects:@1, @3, @5, nil];
   if (![array isEqualToArray:expectedArray]) {
+    [array release];
+    [expectedArray release];
     [pool drain];
     return -2;
   }
 
+  [array release];
+  [expectedArray release];
   [pool drain];
   return 0;
 }
