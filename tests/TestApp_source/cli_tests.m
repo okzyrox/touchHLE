@@ -6414,13 +6414,19 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
   [array removeObjectsInArray:otherArray];
   [otherArray release];
 
+  if ([array count] != 3) {
+    [array release];
+    [pool drain];
+    return -1;
+  }
+
   // Expected: [1, 3, 5]
   NSArray *expectedArray = [[NSArray alloc] initWithObjects:@1, @3, @5, nil];
   if (![array isEqualToArray:expectedArray]) {
     [expectedArray release];
     [array release];
     [pool drain];
-    return -1;
+    return -2;
   }
   printf("\n [array count] %lu \n", [array count]);
   printf("[expectedArray count] %lu \n", [expectedArray count]);
