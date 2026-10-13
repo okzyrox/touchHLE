@@ -13,7 +13,7 @@ use super::{
     _nib_archive_decoder, ns_keyed_unarchiver, ns_string, ns_url, NSComparisonResult, NSNotFound,
     NSRange, NSUInteger,
 };
-use crate::abi::{CallFromHost, GuestFunction, VaList};
+use crate::abi::{CallFromHost, DotDotDot, GuestFunction};
 use crate::frameworks::foundation::ns_keyed_archiver::{
     encode_object, get_value_to_encode_for_current_key,
 };
@@ -383,7 +383,7 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 
 - (id)initWithObjects:(id)first_obj, ...dots {
-    init_with_objects_inner(env, this, first_obj, dots.start());
+    init_with_objects_inner(env, this, first_obj, dots);
     this
 }
 
@@ -511,7 +511,7 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 
 - (id)initWithObjects:(id)first_obj, ...dots {
-    init_with_objects_inner(env, this, first_obj, dots.start());
+    init_with_objects_inner(env, this, first_obj, dots);
     this
 }
 
@@ -899,16 +899,17 @@ fn encode_with_coder_inner(env: &mut Environment, arr: id, coder: id) {
 }
 
 /// Helper for initWithObjects.
-fn init_with_objects_inner(env: &mut Environment, arr: id, first_obj: id, mut va_args: VaList) {
+fn init_with_objects_inner(env: &mut Environment, arr: id, first_obj: id, args: DotDotDot) {
     retain(env, first_obj);
     let mut objects = vec![first_obj];
+    let mut varargs = args.start();
     loop {
-        let object: id = va_args.next(env);
-        if object.is_null() {
+        let next_arg: id = varargs.next(env);
+        if next_arg.is_null() {
             break;
         }
-        retain(env, object);
-        objects.push(object);
+        retain(env, next_arg);
+        objects.push(next_arg);
     }
     env.objc.borrow_mut::<ArrayHostObject>(arr).array = objects;
 }
