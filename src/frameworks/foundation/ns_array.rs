@@ -903,8 +903,10 @@ fn init_with_objects_inner(env: &mut Environment, arr: id, first_obj: id, args: 
     retain(env, first_obj);
     let mut objects = vec![first_obj];
     let mut varargs = args.start();
+    log!("first: {:?}, args: {:?}", first_obj, args);
     loop {
         let next_arg: id = varargs.next(env);
+        log!("arg: {:?}", next_arg);
         if next_arg.is_null() {
             break;
         }
