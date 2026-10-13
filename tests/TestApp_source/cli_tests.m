@@ -6417,7 +6417,9 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
   // Expected: [1, 3, 5]
   NSArray *expectedArray = [[NSArray alloc] initWithObjects:@1, @3, @5, nil];
   if (![array isEqualToArray:expectedArray]) {
-    printf("\n Expected to equal. Got %lu elements, expected 3 in order: [1, 3, 5].", [array count]);
+    printf("\n Expected to equal. Got %lu elements, expected 3 in order: [1, "
+           "3, 5].",
+           [array count]);
     [expectedArray release];
     [array release];
     [pool drain];
