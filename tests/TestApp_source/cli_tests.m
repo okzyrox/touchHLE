@@ -6416,7 +6416,7 @@ int test_NSMutableArray_removeObjectsInArray_otherArray() {
   NSArray *otherArray = [[NSArray alloc] initWithObjects:@2, @4, @99, nil];
   printf("[otherArray count] : %lu \n", (unsigned long)[otherArray count]);
   [array removeObjectsInArray:otherArray];
-  [otherArray release]
+  [otherArray release];
   printf("new [array count]: %lu \n", (unsigned long)[array count]);
   for (int i = 0; i < [array count]; i++) {
     printf("new [array] at %d: %d \n", i,
