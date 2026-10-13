@@ -718,20 +718,13 @@ pub const CLASSES: ClassExports = objc_classes! {
 
     // Since removing objects individually has to iterate the whole array
     // for each object (with [array removeObject:obj]), so this just saves some
-    // runtime costs by doing it ahead for all removals of objects.
-    let mut other_objects = Vec::with_capacity(other_count as usize);
-    for i in 0..other_count {
-        let obj: id = msg![env; other objectAtIndex:i];
-        other_objects.push(obj);
-    }
-
+    // runtime costs.
+    let other_array_set: id = msg_class![env; NSSet alloc];
+    let other_array_set: id = msg![env; other_array_set initWithArray:other];
     let mut new_array = Vec::with_capacity(array.len());
     for object in array {
-        let should_remove = other_objects.iter().any(|&other_obj| {
-            msg![env; other_obj isEqual:object]
-        });
-
-        if should_remove {
+        let contains: bool = msg![env; other_array_set containsObject:object];
+        if contains {
             release(env, object);
         } else {
             new_array.push(object);
@@ -739,6 +732,7 @@ pub const CLASSES: ClassExports = objc_classes! {
     }
 
     env.objc.borrow_mut::<ArrayHostObject>(this).array = new_array;
+    release(env, other_array_set);
 }
 
 @end
