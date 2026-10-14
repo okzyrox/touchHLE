@@ -149,6 +149,7 @@ struct AppPickerDelegateHostObject {
     analog_stick_tilt_controls: Option<bool>,
     network: Option<bool>,
     fullscreen: Option<bool>,
+    ignore_missing_selectors: Option<bool>,
 }
 impl HostObject for AppPickerDelegateHostObject {}
 
@@ -236,6 +237,10 @@ const CLASSES: ClassExports = objc_classes! {
 - (())fullscreen:(id)switch { // UISwitch*
     let switch_state: bool = msg![env; switch isOn];
     env.objc.borrow_mut::<AppPickerDelegateHostObject>(this).fullscreen = Some(switch_state);
+}
+- (())ignoreMissingSelectors:(id)switch { // UISwitch*
+    let switch_state: bool = msg![env; switch isOn];
+    env.objc.borrow_mut::<AppPickerDelegateHostObject>(this).ignore_missing_selectors = Some(switch_state);
 }
 
 - (())openFileManager {
@@ -532,6 +537,7 @@ fn app_picker_inner(
     let mut quick_options_orientation: Option<DeviceOrientation> = None;
     let mut quick_options_analog_stick_tilt_controls = true;
     let mut quick_options_network = false;
+    let mut quick_options_ignore_missing_seletors = false;
 
     fn update_quick_option_buttons(env: &mut Environment, buttons: &[id], selected_idx: usize) {
         for (idx, &button) in buttons.iter().enumerate() {
@@ -719,6 +725,8 @@ fn app_picker_inner(
                 false => None,
                 true => Some(()),
             };
+        } else if let Some(enabled) = std::mem::take(&mut host_obj.ignore_missing_selectors) {
+            quick_options_ignore_missing_seletors = enabled;
         }
     };
 
@@ -745,6 +753,9 @@ fn app_picker_inner(
     }
     if quick_options_network {
         option_args.push("--allow-network-access".to_string());
+    }
+    if quick_options_ignore_missing_seletors {
+        option_args.push("--ignore-missing-selectors".to_string());
     }
 
     // Return the environment so some parts of it can be salvaged.
@@ -1350,6 +1361,8 @@ fn setup_quick_options(
         // ---- (divider for stuff skipped below)
         RowKind::Label("Fullscreen (override)"),
         RowKind::Switch("fullscreen:", false),
+        RowKind::Label("Ignore missing selectors"),
+        RowKind::Switch("ignoreMissingSelectors:", false)
     ];
     let rows_len_full = rows.len();
     let rows = if crate::window::Window::rotatable_fullscreen() {

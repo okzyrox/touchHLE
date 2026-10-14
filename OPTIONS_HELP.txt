@@ -285,6 +285,12 @@ Other options:
         This only affects return value of glGetError as seen by the guest
         and nothing else. Should be enabled only for apps which really
         need this behaviour.
+    
+    --ignore-missing-selectors
+        Ignore selector's that are not implemented for a class or object.
+        This will only make it behave as if the selector call was sent
+        to nil. This is a hack, and may cause unexpected issues for some
+        apps, due to it returning null.
 
     --zero-stack-after-guest-to-host-call=<bytes>
         After a guest-to-host call returns, zero out the given number of

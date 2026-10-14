@@ -61,6 +61,7 @@ pub struct Options {
     pub dumping_options: DumpingOptions,
     pub dumping_file: PathBuf,
     pub ignore_gl_errors: bool,
+    pub ignore_missing_selectors: bool,
     pub zero_stack_after_guest_to_host_call: Option<u32>,
 }
 
@@ -94,6 +95,7 @@ impl Default for Options {
             dumping_options: Default::default(),
             dumping_file: crate::paths::user_data_base_path().join("DUMP.txt"),
             ignore_gl_errors: false,
+            ignore_missing_selectors: false,
             zero_stack_after_guest_to_host_call: None,
         }
     }
@@ -244,6 +246,8 @@ impl Options {
             self.force_composition = true;
         } else if arg == "--allow-network-access" {
             self.network_access = true;
+        } else if arg == "--ignore-missing-selectors" {
+            self.ignore_missing_selectors = true;
         } else if arg == "--no-error-popup" {
             self.popup_errors = false;
         } else if let Some(values) = arg.strip_prefix("--dump=") {

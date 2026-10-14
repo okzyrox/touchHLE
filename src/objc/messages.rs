@@ -211,20 +211,39 @@ fn objc_msgSend_inner(
                 ..
             } = class_host_object.as_any().downcast_ref().unwrap();
 
-            panic!(
-                "{} {:?} ({}class \"{}\", {:?}){} does not respond to selector \"{}\"!",
-                if is_metaclass { "Class" } else { "Object" },
-                receiver,
-                if is_metaclass { "meta" } else { "" },
-                name,
-                orig_class,
-                if super2.is_some() {
-                    "'s superclass"
-                } else {
-                    ""
-                },
-                selector.as_str(&env.mem),
-            );
+            if env.options.ignore_missing_selectors {
+                log!(
+                    "{} {:?} ({}class \"{}\", {:?}){} does not respond to selector \"{}\"! Behaving as if message was sent to nil.",
+                    if is_metaclass { "Class" } else { "Object" },
+                    receiver,
+                    if is_metaclass { "meta" } else { "" },
+                    name,
+                    orig_class,
+                    if super2.is_some() {
+                        "'s superclass"
+                    } else {
+                        ""
+                    },
+                    selector.as_str(&env.mem),
+                );
+                env.cpu.regs_mut()[0..2].fill(0);
+                return
+            } else {
+                panic!(
+                    "{} {:?} ({}class \"{}\", {:?}){} does not respond to selector \"{}\"!",
+                    if is_metaclass { "Class" } else { "Object" },
+                    receiver,
+                    if is_metaclass { "meta" } else { "" },
+                    name,
+                    orig_class,
+                    if super2.is_some() {
+                        "'s superclass"
+                    } else {
+                        ""
+                    },
+                    selector.as_str(&env.mem),
+                );
+            }
         }
 
         let host_object = env.objc.get_host_object(class).unwrap();
