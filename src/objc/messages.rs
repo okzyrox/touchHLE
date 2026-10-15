@@ -227,7 +227,7 @@ fn objc_msgSend_inner(
                     selector.as_str(&env.mem),
                 );
                 env.cpu.regs_mut()[0..2].fill(0);
-                return
+                return;
             } else {
                 panic!(
                     "{} {:?} ({}class \"{}\", {:?}){} does not respond to selector \"{}\"!",

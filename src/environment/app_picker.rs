@@ -1362,7 +1362,7 @@ fn setup_quick_options(
         RowKind::Label("Fullscreen (override)"),
         RowKind::Switch("fullscreen:", false),
         RowKind::Label("Ignore missing selectors"),
-        RowKind::Switch("ignoreMissingSelectors:", false)
+        RowKind::Switch("ignoreMissingSelectors:", false),
     ];
     let rows_len_full = rows.len();
     let rows = if crate::window::Window::rotatable_fullscreen() {
